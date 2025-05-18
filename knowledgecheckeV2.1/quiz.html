@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automotive Diagnostics Interactive Quiz</title>
+  <style>
+    /* [CSS as provided by user, unchanged for brevity] */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f4f6;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+    }
+    h1 {
+      text-align: center;
+      color: #1e40af;
+      margin-bottom: 25px;
+      font-size: 28px;
+    }
+    .progress-container {
+      margin-bottom: 20px;
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+    .progress-bar-container {
+      width: 100%;
+      height: 10px;
+      background-color: #e5e7eb;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background-color: #2563eb;
+      border-radius: 9999px;
+      transition: width 0.3s ease;
+    }
+    .question-container {
+      margin-bottom: 30px;
+    }
+    .question-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .image-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .question-image {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+    }
+    .answers-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+    .answer-option {
+      width: 100%;
+      padding: 12px 15px;
+      text-align: left;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      background-color: #f9fafb;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+    .answer-option:hover {
+      background-color: #e5e7eb;
+    }
+    .answer-option.selected-correct {
+      background-color: #dcfce7;
+      border: 2px solid #22c55e;
+    }
+    .answer-option.selected-incorrect {
+      background-color: #fee2e2;
+      border: 2px solid #ef4444;
+    }
+    .answer-option.correct {
+      background-color: #dcfce7;
+      border: 2px solid #22c55e;
+    }
+    .answer-option:disabled {
+      cursor: default;
+    }
+    .explanation {
+      padding: 15px;
+      background-color: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      display: none;
+    }
+    .explanation h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    .explanation p {
+      margin: 0;
+      line-height: 1.6;
+    }
+    .button-container {
+      text-align: center;
+    }
+    .next-button, .restart-button {
+      background-color: #2563eb;
+      color: white;
+      font-weight: bold;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.2s;
+    }
+    .next-button:hover, .restart-button:hover {
+      background-color: #1d4ed8;
+    }
+    .next-button:disabled {
+      background-color: #9ca3af;
+      cursor: not-allowed;
+    }
+    .results-container {
+      text-align: center;
+      padding: 25px;
+      background-color: #eff6ff;
+      border-radius: 8px;
+      display: none;
+    }
+    .results-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+    .results-score {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    .results-feedback {
+      margin-bottom: 25px;
+      font-weight: 600;
+    }
+    .excellent {
+      color: #16a34a;
+    }
+    .good {
+      color: #2563eb;
+    }
+    .needs-improvement {
+      color: #ea580c;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Automotive Diagnostics Quiz</h1>
+    <div id="quiz-container">
+      <div class="progress-container">
+        <div class="progress-header">
+          <span id="question-number">Question 1 of 10</span>
+          <span id="score-display">Score: 0</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="progress-bar" style="width: 10%;"></div>
+        </div>
+      </div>
+      <div class="question-container">
+        <div class="question-title" id="question-text"></div>
+        <div class="image-container">
+          <img id="question-image" class="question-image" src="" alt="Circuit Diagram">
+        </div>
+        <div class="answers-container" id="answers-container">
+        </div>
+      </div>
+      <div class="explanation" id="explanation">
+        <h3>Explanation:</h3>
+        <p id="explanation-text"></p>
+      </div>
+      <div class="button-container">
+        <button id="next-button" class="next-button" disabled>Next Question</button>
+      </div>
+    </div>
+    <div id="results-container" class="results-container">
+      <div class="results-title">Quiz Complete!</div>
+      <div class="results-score" id="final-score">You scored 0 out of 10</div>
+      <div class="results-feedback" id="feedback-text"></div>
+      <button id="restart-button" class="restart-button">Restart Quiz</button>
+    </div>
+  </div>
+  <div class="footer">
+    <p>Designed for automotive technicians to test knowledge of electrical diagnostics</p>
+  </div>
+  <script>
+    // Quiz data - questions, images, and answers
+    const questions = [
+      {
+        questionText: 'What type of switching does the control module perform in this circuit?',
+        imageUrl: 'images/1controlmodule.png',
+        imageAlt: 'Control Module Circuit with 12V battery, motor, and ground connections',
+        answerOptions: [
+          { answerText: 'High-side switching', isCorrect: false },
+          { answerText: 'Low-side switching', isCorrect: true },
+          { answerText: 'Manual switching', isCorrect: false },
+        ],
+        explanation: 'This circuit shows low-side switching where the control module provides the ground path for the circuit. The module is connected between the load (motor) and ground, controlling current flow by either completing or breaking the ground connection.'
+      },
+      {
+        questionText: 'What does the sensor circuit with the thermistor measure?',
+        imageUrl: 'images/2thermistor.jpg',
+        imageAlt: 'Thermistor Circuit with VREF, Signal, and Ground connections',
+        answerOptions: [
+          { answerText: 'Speed', isCorrect: false },
+          { answerText: 'Voltage', isCorrect: false },
+          { answerText: 'Temperature', isCorrect: true },
+        ],
+        explanation: 'This circuit contains a thermistor which changes resistance based on temperature. The control module monitors the voltage drop across the thermistor, which varies with temperature, allowing it to measure temperature changes.'
+      },
+      {
+        questionText: 'What type of sensor is illustrated in the coolant temperature sensor diagram?',
+        imageUrl: 'images/3thermistor.jpg',
+        imageAlt: 'Coolant Temperature Sensor with Computer Connection',
+        answerOptions: [
+          { answerText: 'NTC Thermistor', isCorrect: true },
+          { answerText: 'PTC Thermistor', isCorrect: false },
+          { answerText: 'Hall Effect Sensor', isCorrect: false },
+        ],
+        explanation: 'This is an NTC (Negative Temperature Coefficient) thermistor used in coolant temperature sensors. As temperature increases, its resistance decreases, producing an inverse relationship between temperature and resistance.'
+      },
+      {
+        questionText: 'What component is represented in the diagram showing a variable resistor?',
+        imageUrl: 'images/4potentiometer.png',
+        imageAlt: 'Variable Resistor Circuit with VREF, Signal, and Ground connections',
+        answerOptions: [
+          { answerText: 'Relay', isCorrect: false },
+          { answerText: 'Thermistor', isCorrect: false },
+          { answerText: 'Potentiometer', isCorrect: true },
+        ],
+        explanation: 'This diagram shows a potentiometer, which is a three-terminal variable resistor. It provides a variable voltage output signal based on the position of its wiper terminal. Potentiometers are commonly used in throttle position sensors, pedal position sensors, and similar applications.'
+      },
+      {
+        questionText: 'Which property changes in the potentiometer sensor to vary the output voltage?',
+        imageUrl: 'images/5potentiometer.png',
+        imageAlt: 'Potentiometer Circuit showing variable resistance',
+        answerOptions: [
+          { answerText: 'Inductance', isCorrect: false },
+          { answerText: 'Resistance', isCorrect: true },
+          { answerText: 'Capacitance', isCorrect: false },
+        ],
+        explanation: 'In a potentiometer, the resistance changes as the wiper moves along the resistive track. This change in resistance creates a voltage divider circuit, producing a variable voltage output proportional to the wiper position.'
+      },
+      {
+        questionText: 'What type of sensor is shown in the image with the coil, magnet, and gearwheel?',
+        imageUrl: 'images/6varreluctance.jpg',
+        imageAlt: 'Variable Reluctance Sensor with magnet, coil, iron core and gearwheel',
+        answerOptions: [
+          { answerText: 'Inductive Sensor', isCorrect: false },
+          { answerText: 'Variable Reluctance Sensor', isCorrect: true },
+          { answerText: 'Capacitive Sensor', isCorrect: false },
+        ],
+        explanation: 'This is a Variable Reluctance Sensor (VRS), commonly used for crankshaft and camshaft position sensing. It generates an AC voltage signal as the teeth of a rotating reluctor wheel pass by the sensor tip, changing the magnetic field. The frequency and amplitude of the signal correspond to the speed of rotation.'
+      },
+      {
+        questionText: 'What kind of signal does the Hall Effect sensor produce?',
+        imageUrl: 'images/7halleffect.png',
+        imageAlt: 'Hall Effect Sensor with VREF, SIG, and GND connections',
+        answerOptions: [
+          { answerText: 'Analog voltage', isCorrect: false },
+          { answerText: 'Magnetic field', isCorrect: false },
+          { answerText: 'Digital square wave', isCorrect: true },
+        ],
+        explanation: 'Hall Effect sensors produce a digital square wave output signal (on/off) when exposed to a magnetic field. This makes them ideal for precise timing applications like camshaft and crankshaft position sensors where a clean digital signal is needed for exact timing calculations.'
+      },
+      {
+        questionText: 'What does the control module activate in the diagram with a relay?',
+        imageUrl: 'images/8controlmodule.png',
+        imageAlt: 'Control Module with Solenoid connection',
+        answerOptions: [
+          { answerText: 'Ground', isCorrect: false },
+          { answerText: 'Solenoid coil', isCorrect: true },
+          { answerText: 'Load directly', isCorrect: false },
+        ],
+        explanation: 'In this circuit, the control module activates the solenoid coil of the relay. When the module energizes the coil, it creates a magnetic field that moves the relay contacts, allowing current to flow through the load circuit. This provides isolation between the control circuit and the higher current load circuit.'
+      },
+      {
+        questionText: 'What type of relay control is shown in the diagram with the control module connected to a relay with B+ connections?',
+        imageUrl: 'images/9controlmodule.png',
+        imageAlt: 'High-Side Relay Control with B+ connections',
+        answerOptions: [
+          { answerText: 'Low-side control', isCorrect: false },
+          { answerText: 'High-side control', isCorrect: true },
+          { answerText: 'PWM control', isCorrect: false },
+        ],
+        explanation: 'This diagram shows high-side control where the relay is located between the power source (B+) and the load. The control module activates the relay coil, which then connects B+ to the load. This is used when you want to completely isolate the load from the power source when off.'
+      },
+      {
+        questionText: 'What type of load control is being used in the diagram where the control module connects to ground?',
+        imageUrl: 'images/10outputcircuit.jpg',
+        imageAlt: 'Output Control Circuit with control module connected to ground',
+        answerOptions: [
+          { answerText: 'Pulse-width modulation', isCorrect: false },
+          { answerText: 'Low-side switched load', isCorrect: true },
+          { answerText: 'High-side switched load', isCorrect: false },
+        ],
+        explanation: 'This circuit shows a low-side switched load where the control module completes the ground path for the circuit. The power (B+) is directly connected to the load, and the control module controls current flow by either connecting or disconnecting the ground path. This is a common configuration in automotive systems.'
+      },
+    ];
+    let currentQuestion = 0;
+    let score = 0;
+    let answered = false;
+    const quizContainer = document.getElementById('quiz-container');
+    const resultsContainer = document.getElementById('results-container');
+    const questionText = document.getElementById('question-text');
+    const questionImage = document.getElementById('question-image');
+    const answersContainer = document.getElementById('answers-container');
+    const questionNumber = document.getElementById('question-number');
+    const scoreDisplay = document.getElementById('score-display');
+    const progressBar = document.getElementById('progress-bar');
+    const explanation = document.getElementById('explanation');
+    const explanationText = document.getElementById('explanation-text');
+    const nextButton = document.getElementById('next-button');
+    const finalScore = document.getElementById('final-score');
+    const feedbackText = document.getElementById('feedback-text');
+    const restartButton = document.getElementById('restart-button');
+    function initQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      loadQuestion();
+      nextButton.addEventListener('click', handleNextClick);
+      restartButton.addEventListener('click', restartQuiz);
+    }
+    function loadQuestion() {
+      answered = false;
+      nextButton.disabled = true;
+      explanation.style.display = 'none';
+      const question = questions[currentQuestion];
+      questionText.textContent = question.questionText;
+      questionImage.src = question.imageUrl;
+      questionImage.alt = question.imageAlt;
+      questionNumber.textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+      scoreDisplay.textContent = `Score: ${score}`;
+      progressBar.style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
+      answersContainer.innerHTML = '';
+      question.answerOptions.forEach((answer, index) => {
+        const button = document.createElement('button');
+        button.className = 'answer-option';
+        button.textContent = answer.answerText;
+        button.addEventListener('click', () => handleAnswerClick(answer.isCorrect, index));
+        answersContainer.appendChild(button);
+      });
+      explanationText.textContent = question.explanation;
+    }
+    function handleAnswerClick(isCorrect, selectedIndex) {
+      if (answered) return;
+      answered = true;
+      const answerButtons = document.querySelectorAll('.answer-option');
+      answerButtons.forEach(button => {
+        button.disabled = true;
+      });
+      if (isCorrect) {
+        answerButtons[selectedIndex].classList.add('selected-correct');
+        score++;
+        scoreDisplay.textContent = `Score: ${score}`;
+      } else {
+        answerButtons[selectedIndex].classList.add('selected-incorrect');
+        questions[currentQuestion].answerOptions.forEach((answer, index) => {
+          if (answer.isCorrect) {
+            answerButtons[index].classList.add('correct');
+          }
+        });
+      }
+      explanation.style.display = 'block';
+      nextButton.disabled = false;
+    }
+    function handleNextClick() {
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+    function showResults() {
+      quizContainer.style.display = 'none';
+      resultsContainer.style.display = 'block';
+      finalScore.textContent = `You scored ${score} out of ${questions.length}`;
+      if (score >= 8) {
+        feedbackText.textContent = 'Excellent! You have a strong understanding of automotive diagnostic systems.';
+        feedbackText.className = 'results-feedback excellent';
+      } else if (score >= 6) {
+        feedbackText.textContent = 'Good job! You have a solid foundation, but there\'s room for improvement.';
+        feedbackText.className = 'results-feedback good';
+      } else {
+        feedbackText.textContent = 'You might want to review automotive electrical systems concepts.';
+        feedbackText.className = 'results-feedback needs-improvement';
+      }
+    }
+    function restartQuiz() {
+      score = 0;
+      currentQuestion = 0;
+      quizContainer.style.display = 'block';
+      resultsContainer.style.display = 'none';
+      loadQuestion();
+    }
+    window.addEventListener('DOMContentLoaded', initQuiz);
+  </script>
+</body>
+</html>
